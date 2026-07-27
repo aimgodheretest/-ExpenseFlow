@@ -1,23 +1,37 @@
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-
 import AuthLayout from "../layouts/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import InputField from "../components/auth/InputField";
 import AuthButton from "../components/auth/AuthButton";
-
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { loginUser } from "../api/authApi";
 export default function Login() {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await loginUser(data);
 
-    // Next task:
-    // loginUser(data)
+      // Save JWT
+      localStorage.setItem("token", response.token);
+
+      // Save user
+      localStorage.setItem("user", JSON.stringify(response.user));
+
+      toast.success(response.message);
+
+      // Dashboard will be built later
+      navigate("/");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
   };
 
   return (
