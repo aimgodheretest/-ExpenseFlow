@@ -7,7 +7,9 @@ import AuthButton from "../components/auth/AuthButton";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { loginUser } from "../api/authApi";
+import { useAuth } from "../context/AuthContext";
 export default function Login() {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const {
     register,
@@ -18,17 +20,9 @@ export default function Login() {
   const onSubmit = async (data) => {
     try {
       const response = await loginUser(data);
-
-      // Save JWT
-      localStorage.setItem("token", response.token);
-
-      // Save user
-      localStorage.setItem("user", JSON.stringify(response.user));
-
+      login(response.token, response.user);
       toast.success(response.message);
-
-      // Dashboard will be built later
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
     }
